@@ -12,6 +12,7 @@
 	let canvas: HTMLCanvasElement;
 	let originX: number, originY: number;
 	let resizetimeout: any;
+	let animationFrameId: number;
 
 	onMount(() => {
 		originX = size.width / 2 - radius / 2;
@@ -26,13 +27,16 @@
 		if (resizetimeout) clearTimeout(resizetimeout);
 		resizetimeout = setTimeout(() => {
 			if (canvas) {
-				console.log('Resizing canvas');
-				const rect = canvas.parentNode.getBoundingClientRect();
+				const parent = canvas.parentElement;
+				if (!parent) return;
+				const rect = parent.getBoundingClientRect();
 				const minDimension = Math.min(rect.width, rect.height);
 				size.width = size.height = Math.max(2000, minDimension); // Ensure minimum size is 2000 or container size if smaller
 				canvas.width = size.width;
 				canvas.height = size.height;
-				startAnimation(); // Restart animation to apply new size
+
+				cancelAnimationFrame(animationFrameId);
+				startAnimation(canvas);
 			}
 		}, 100);
 	}
@@ -59,13 +63,12 @@
 			};
 			imageElement.src = src; // Set the source which begins loading the image
 		});
-		startAnimation();
 	}
 
-	function startAnimation() {
-		const ctx = canvas.getContext('2d');
+	function startAnimation(_canvas: HTMLCanvasElement) {
+		const ctx = _canvas.getContext('2d');
 		if (!ctx) return;
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, _canvas.width, _canvas.height);
 
 		images.forEach((image) => {
 			// Generate new random directions if almost stationary
@@ -82,19 +85,19 @@
 			// Ensure images wrap around smoothly or stay within the canvas
 			switch (mode) {
 				case 'bounce':
-					if (image.x < image.radius || image.x > canvas.width - image.radius) image.dx *= -1;
-					if (image.y < image.radius || image.y > canvas.height - image.radius) image.dy *= -1;
+					if (image.x < image.radius || image.x > _canvas.width - image.radius) image.dx *= -1;
+					if (image.y < image.radius || image.y > _canvas.height - image.radius) image.dy *= -1;
 					break;
 				case 'wrap':
-					if (image.x < -image.radius) image.x = canvas.width + image.radius;
-					else if (image.x > canvas.width + image.radius) image.x = -image.radius;
-					if (image.y < -image.radius) image.y = canvas.height + image.radius;
-					else if (image.y > canvas.height + image.radius) image.y = -image.radius;
+					if (image.x < -image.radius) image.x = _canvas.width + image.radius;
+					else if (image.x > _canvas.width + image.radius) image.x = -image.radius;
+					if (image.y < -image.radius) image.y = _canvas.height + image.radius;
+					else if (image.y > _canvas.height + image.radius) image.y = -image.radius;
 					break;
 				case 'gravity':
 					// Gravity pulls towards the bottom of the canvas
 					image.dy += 0.5; // Incremental pull towards bottom
-					if (image.y > canvas.height - image.radius) {
+					if (image.y > _canvas.height - image.radius) {
 						image.dy *= -0.5; // Bounce back with less energy
 					}
 					break;
@@ -144,7 +147,7 @@
 			image.dx *= 0.99;
 			image.dy *= 0.99;
 		});
-		requestAnimationFrame(startAnimation);
+		animationFrameId = requestAnimationFrame(() => startAnimation(_canvas));
 	}
 
 	// Function to draw a rounded rectangle
