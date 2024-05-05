@@ -2,7 +2,7 @@
 
 ## Description
 
-This package is a performant image gallery 
+This package is a performant image gallery
 
 ## Installation
 
@@ -16,9 +16,7 @@ npm install your-package-name
 
 ```svelte
 <script lang="ts">
-
 	import Bubbles from 'svelte-image-galleries';
-
 
 	const numberOfImages = 200;
 
@@ -27,5 +25,10 @@ npm install your-package-name
 		.map((_, i) => `https://picsum.photos/200/200?random=${i}`);
 	let mode = 'bounce';
 </script>
+
 <Bubbles {imageSources} range={200} radius={100} borderRadius={10} mode="bounce" />
 ```
+
+# Live Demo
+
+https://svelte-image-galleries.pages.dev

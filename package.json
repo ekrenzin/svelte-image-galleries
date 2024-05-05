@@ -1,6 +1,6 @@
 {
 	"name": "svelte-image-galleries",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "High perf image galleries with animations",
 	"author": {
 		"name": "Ean Krenzin-Blank"
