@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 
 	export let imageSources: string[] = [];
 	export let range: number = 200; // Maximum offset from the origin
@@ -11,18 +11,30 @@
 	let size: { width: number; height: number } = { width: 2000, height: 2000 };
 	let canvas: HTMLCanvasElement;
 	let originX: number, originY: number;
+	let resizetimeout: any;
 
 	onMount(() => {
 		originX = size.width / 2 - radius / 2;
 		originY = size.height / 2 - radius / 2;
 		loadImages();
+		updateCanvasSize();
 	});
 
-	function sizeCanvas(node: HTMLDivElement) {
-		if (!node) return;
-		const { width, height } = node.getBoundingClientRect();
-		size.width = width;
-		size.height = height;
+	// Update canvas size based on the window size
+
+	function updateCanvasSize() {
+		if (resizetimeout) clearTimeout(resizetimeout);
+		resizetimeout = setTimeout(() => {
+			if (canvas) {
+				console.log('Resizing canvas');
+				const rect = canvas.parentNode.getBoundingClientRect();
+				const minDimension = Math.min(rect.width, rect.height);
+				size.width = size.height = Math.max(2000, minDimension); // Ensure minimum size is 2000 or container size if smaller
+				canvas.width = size.width;
+				canvas.height = size.height;
+				startAnimation(); // Restart animation to apply new size
+			}
+		}, 100);
 	}
 
 	function loadImages() {
@@ -151,7 +163,8 @@
 	}
 </script>
 
-<div use:sizeCanvas class="canvas-wrapper">
+<svelte:window on:resize={updateCanvasSize} />
+<div class="canvas-wrapper">
 	<canvas bind:this={canvas} width={size.width} height={size.height}></canvas>
 </div>
 

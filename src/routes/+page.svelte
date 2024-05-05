@@ -94,6 +94,7 @@
 		overflow: hidden;
 		margin: auto;
 		max-height: 80vh;
+		width: 90vw;
 		border: 0.5rem solid #000;
 	}
 
