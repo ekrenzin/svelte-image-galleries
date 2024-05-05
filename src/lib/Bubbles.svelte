@@ -107,18 +107,27 @@
 			// Clip to the path
 			ctx.clip();
 
-			// Draw the image within the clipped region
+			// Adjust scaling to cover the bubble area
+			const scale = Math.max(
+				(image.radius * 2) / image.element.width,
+				(image.radius * 2) / image.element.height
+			);
+			const scaledWidth = image.element.width * scale;
+			const scaledHeight = image.element.height * scale;
+			const offsetX = (image.radius * 2 - scaledWidth) / 2;
+			const offsetY = (image.radius * 2 - scaledHeight) / 2;
+
+			// Draw the image covering the area
 			ctx.drawImage(
 				image.element,
-				image.x - image.radius,
-				image.y - image.radius,
-				image.radius * 2,
-				image.radius * 2
+				image.x - image.radius + offsetX,
+				image.y - image.radius + offsetY,
+				scaledWidth,
+				scaledHeight
 			);
 
-			// Restore the context to remove the clipping path for the next image
+			// Restore the context state
 			ctx.restore();
-
 			// Apply a slight friction to slow down over time
 			image.dx *= 0.99;
 			image.dy *= 0.99;
